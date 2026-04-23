@@ -12,10 +12,16 @@
 
 <div class="flex h-screen w-screen overflow-hidden bg-brand-bg">
 
+    {{-- Mobile backdrop --}}
+    <div id="sidebar-backdrop" class="fixed inset-0 bg-black/50 z-40 hidden md:hidden"></div>
+
     {{-- ── Sidebar ────────────────────────────────────────────── --}}
     <aside
         id="sidebar"
-        class="flex flex-col h-screen bg-brand-black text-white transition-all duration-300 flex-shrink-0 w-[220px]"
+        style="transition: transform 0.3s ease, width 0.3s ease;"
+        class="flex flex-col h-screen bg-brand-black text-white flex-shrink-0
+               fixed inset-y-0 left-0 z-50 w-[220px]
+               md:relative md:translate-x-0"
     >
         {{-- Logo --}}
         <div id="sidebar-logo" class="flex items-center border-b border-white/10 h-14 flex-shrink-0 px-4 gap-2.5">

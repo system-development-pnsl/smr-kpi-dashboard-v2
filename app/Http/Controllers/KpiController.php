@@ -61,8 +61,9 @@ class KpiController extends Controller
 
     public function actionPlan(ActionPlan $plan): View
     {
-        $plan->load(['department', 'goals.actionItems.assignee', 'creator']);
-        return view('pages.kpi.action-plan', compact('plan'));
+        $plan->load(['department', 'goals.owner', 'goals.actionItems.assignee', 'creator']);
+        $users = \App\Models\User::where('status', 'active')->orderBy('full_name')->get(['id', 'full_name']);
+        return view('pages.kpi.action-plan', compact('plan', 'users'));
     }
 
     public function addGoal(Request $request, ActionPlan $plan): JsonResponse|RedirectResponse

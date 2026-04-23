@@ -15,24 +15,42 @@ window.Chart = Chart
 $(function () {
 
     // ── Sidebar ───────────────────────────────────────────────────────────────
-    const $sidebar = $('#sidebar')
-    let collapsed  = localStorage.getItem('sidebar_collapsed') === 'true'
+    const $sidebar   = $('#sidebar')
+    const $backdrop  = $('#sidebar-backdrop')
+    const isMobile   = () => window.innerWidth < 768
+
+    // On mobile always start closed; on desktop restore saved state
+    let collapsed = isMobile() ? true : localStorage.getItem('sidebar_collapsed') === 'true'
+
+    function expandSidebarContent() {
+        $sidebar.removeClass('w-[60px]').addClass('w-[220px]')
+        $('#sidebar-logo').removeClass('justify-center px-0').addClass('px-4 gap-2.5')
+        $('[data-sidebar-link]').removeClass('justify-center h-9 px-0').addClass('h-9 px-3')
+        $('#sidebar-notif-link').removeClass('justify-center h-9 px-0 w-full').addClass('h-9 px-3 w-full')
+        $('.sidebar-expanded').show()
+        $('.sidebar-collapsed').hide()
+    }
+
+    function collapseSidebarContent() {
+        $sidebar.removeClass('w-[220px]').addClass('w-[60px]')
+        $('#sidebar-logo').removeClass('px-4 gap-2.5').addClass('justify-center px-0')
+        $('[data-sidebar-link]').removeClass('h-9 px-3').addClass('justify-center h-9 px-0')
+        $('#sidebar-notif-link').removeClass('h-9 px-3 w-full').addClass('justify-center h-9 px-0 w-full')
+        $('.sidebar-expanded').hide()
+        $('.sidebar-collapsed').show()
+    }
 
     function applySidebar() {
-        if (collapsed) {
-            $sidebar.removeClass('w-[220px]').addClass('w-[60px]')
-            $('#sidebar-logo').removeClass('px-4 gap-2.5').addClass('justify-center px-0')
-            $('[data-sidebar-link]').removeClass('h-9 px-3').addClass('justify-center h-9 px-0')
-            $('#sidebar-notif-link').removeClass('h-9 px-3 w-full').addClass('justify-center h-9 px-0 w-full')
-            $('.sidebar-expanded').hide()
-            $('.sidebar-collapsed').show()
+        if (isMobile()) {
+            // Mobile: use inline style so CSS class order doesn't interfere
+            $sidebar[0].style.transform = collapsed ? 'translateX(-100%)' : 'translateX(0)'
+            $backdrop.toggleClass('hidden', collapsed)
+            expandSidebarContent()
         } else {
-            $sidebar.removeClass('w-[60px]').addClass('w-[220px]')
-            $('#sidebar-logo').removeClass('justify-center px-0').addClass('px-4 gap-2.5')
-            $('[data-sidebar-link]').removeClass('justify-center h-9 px-0').addClass('h-9 px-3')
-            $('#sidebar-notif-link').removeClass('justify-center h-9 px-0 w-full').addClass('h-9 px-3 w-full')
-            $('.sidebar-expanded').show()
-            $('.sidebar-collapsed').hide()
+            // Desktop: clear inline transform and let md:translate-x-0 take over
+            $sidebar[0].style.transform = ''
+            $backdrop.addClass('hidden')
+            collapsed ? collapseSidebarContent() : expandSidebarContent()
         }
     }
 
@@ -40,7 +58,19 @@ $(function () {
 
     $('#sidebar-toggle').on('click', function () {
         collapsed = !collapsed
-        localStorage.setItem('sidebar_collapsed', collapsed)
+        if (!isMobile()) localStorage.setItem('sidebar_collapsed', collapsed)
+        applySidebar()
+    })
+
+    // Close drawer when tapping backdrop (mobile)
+    $backdrop.on('click', function () {
+        collapsed = true
+        applySidebar()
+    })
+
+    // Re-apply on resize (handles mobile ↔ desktop switch)
+    $(window).on('resize', function () {
+        collapsed = isMobile() ? true : localStorage.getItem('sidebar_collapsed') === 'true'
         applySidebar()
     })
 
@@ -359,13 +389,16 @@ $(function () {
         $wrap.data('dp-month', base.getMonth())
         dpRender($wrap)
 
-        // Open / close
+        // Open / close — use fixed positioning so overflow-hidden parents don't clip
         $wrap.find('.dp-trigger').on('click', function (e) {
             e.stopPropagation()
             const isOpen = $wrap.find('.dp-calendar').is(':visible')
             closeAllDropdowns()
             if (!isOpen) {
-                $wrap.find('.dp-calendar').show()
+                const $cal = $wrap.find('.dp-calendar')
+                const rect = this.getBoundingClientRect()
+                $cal.css({ top: rect.bottom + 6, left: rect.left })
+                $cal.show()
                 $wrap.find('.dp-trigger').addClass('dp-open')
             }
         })

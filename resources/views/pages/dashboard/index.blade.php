@@ -137,7 +137,7 @@
             </div>
 
             {{-- Filter tabs --}}
-            <div class="flex gap-1 mb-3 border-b border-brand-border pb-2">
+            <div class="flex gap-1 mb-3 border-b border-brand-border pb-2 overflow-x-auto scrollbar-none">
                 @foreach(['all' => 'All', 'IN_PROGRESS' => 'In Progress', 'BLOCKED' => 'Blocked', 'TODO' => 'To Do', 'DONE' => 'Done'] as $key => $label)
                     <a href="{{ route('dashboard', ['status' => $key]) }}"
                        class="text-[11px] font-medium px-2.5 py-1 rounded-md transition-colors

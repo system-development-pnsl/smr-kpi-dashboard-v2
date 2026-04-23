@@ -56,6 +56,13 @@
         @apply bg-white text-brand-black;
     }
 
+    /* ── Utility ─────────────────────────────────────────────── */
+    .scrollbar-none {
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+    }
+    .scrollbar-none::-webkit-scrollbar { display: none; }
+
     /* ── Cards ───────────────────────────────────────────────── */
     .card {
         @apply bg-brand-surface border border-brand-border rounded-xl p-4;
@@ -117,8 +124,7 @@
         @apply text-brand-black;
     }
     .dp-calendar {
-        @apply absolute z-50 top-full mt-1.5 left-0
-               bg-brand-surface border border-brand-border rounded-xl
+        @apply fixed z-[200] bg-brand-surface border border-brand-border rounded-xl
                shadow-lg p-3 w-[272px];
     }
     .dp-cal-header {

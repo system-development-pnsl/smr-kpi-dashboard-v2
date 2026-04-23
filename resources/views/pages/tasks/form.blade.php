@@ -96,7 +96,7 @@
             {{-- Priority --}}
             <div>
                 <label class="label">Priority</label>
-                <div class="grid grid-cols-4 gap-2">
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
                     @foreach(['P1' => ['Urgent', 'border-status-red bg-status-red-bg text-status-red'], 'P2' => ['High', 'border-status-amber bg-status-amber-bg text-status-amber'], 'P3' => ['Normal', 'border-status-blue bg-status-blue-bg text-status-blue'], 'P4' => ['Low', 'border-brand-border bg-brand-bg text-brand-muted']] as $val => [$label, $activeClass])
                         <label class="cursor-pointer">
                             <input type="radio" name="priority" value="{{ $val }}" class="sr-only"

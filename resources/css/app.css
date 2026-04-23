@@ -1,0 +1,232 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=DM+Mono:wght@400;500&display=swap');
+@import "tailwindcss";
+
+@theme {
+    --font-sans: "DM Sans", ui-sans-serif, system-ui, sans-serif;
+    --font-mono: "DM Mono", monospace;
+
+    --color-brand-black:   #0A0A0A;
+    --color-brand-white:   #FAFAFA;
+    --color-brand-bg:      #F5F5F3;
+    --color-brand-surface: #FFFFFF;
+    --color-brand-border:  #E5E5E3;
+    --color-brand-muted:   #737373;
+    --color-brand-subtle:  #A3A3A3;
+
+    --color-status-green:    #16A34A;
+    --color-status-green-bg: #DCFCE7;
+    --color-status-amber:    #D97706;
+    --color-status-amber-bg: #FEF3C7;
+    --color-status-red:      #DC2626;
+    --color-status-red-bg:   #FEE2E2;
+    --color-status-blue:     #2563EB;
+    --color-status-blue-bg:  #DBEAFE;
+
+    --shadow-card:       0 1px 3px 0 rgb(0 0 0 / 0.06), 0 1px 2px -1px rgb(0 0 0 / 0.04);
+    --shadow-card-hover: 0 4px 12px 0 rgb(0 0 0 / 0.08), 0 2px 4px -2px rgb(0 0 0 / 0.04);
+}
+
+@layer base {
+    *, *::before, *::after { box-sizing: border-box; }
+
+    html {
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+    }
+
+    body {
+        @apply bg-brand-bg text-brand-black font-sans;
+        font-size: 14px;
+        line-height: 1.5;
+    }
+
+    ::-webkit-scrollbar       { width: 5px; height: 5px; }
+    ::-webkit-scrollbar-track { @apply bg-transparent; }
+    ::-webkit-scrollbar-thumb { @apply bg-brand-border rounded-full; }
+}
+
+@layer components {
+    /* ── Sidebar ─────────────────────────────────────────────── */
+    .sidebar-link {
+        @apply flex items-center gap-3 h-9 px-3 rounded text-white/60
+               hover:text-white hover:bg-white/10 transition-all duration-150
+               text-[13px] font-medium;
+    }
+    .sidebar-link.active {
+        @apply bg-white text-brand-black;
+    }
+
+    /* ── Cards ───────────────────────────────────────────────── */
+    .card {
+        @apply bg-brand-surface border border-brand-border rounded-xl p-4;
+    }
+    .card-hover {
+        @apply hover:shadow-card-hover transition-shadow duration-200;
+    }
+
+    /* ── Buttons ─────────────────────────────────────────────── */
+    .btn {
+        @apply inline-flex items-center gap-1.5 px-3 h-8 rounded-lg text-[12px]
+               font-medium transition-all duration-150 cursor-pointer;
+    }
+    .btn-primary {
+        @apply inline-flex items-center gap-1.5 px-3 h-8 rounded-lg text-[12px]
+               font-medium transition-all duration-150 cursor-pointer
+               bg-brand-black text-white hover:bg-brand-black/85;
+    }
+    .btn-secondary {
+        @apply inline-flex items-center gap-1.5 px-3 h-8 rounded-lg text-[12px]
+               font-medium transition-all duration-150 cursor-pointer
+               bg-brand-surface text-brand-muted border border-brand-border
+               hover:text-brand-black hover:bg-brand-bg;
+    }
+    .btn-danger {
+        @apply inline-flex items-center gap-1.5 px-3 h-8 rounded-lg text-[12px]
+               font-medium transition-all duration-150 cursor-pointer
+               bg-status-red text-white hover:bg-status-red/85;
+    }
+
+    /* ── Form inputs ─────────────────────────────────────────── */
+    .input {
+        @apply w-full bg-brand-surface border border-brand-border rounded-lg
+               px-3 h-9 text-[13px] text-brand-black placeholder:text-brand-subtle
+               outline-none focus:border-brand-black transition-colors;
+    }
+
+    /* ── Custom Date Picker ──────────────────────────────────── */
+    .dp-wrap {
+        @apply relative w-full;
+    }
+    .dp-trigger {
+        @apply flex items-center justify-between gap-2 text-left cursor-pointer w-full;
+    }
+    .dp-trigger.dp-open {
+        @apply border-brand-black;
+    }
+    .dp-display {
+        @apply flex-1 text-[13px] text-brand-black truncate;
+    }
+    .dp-ph {
+        @apply text-brand-subtle;
+    }
+    .dp-icon {
+        @apply w-[15px] h-[15px] text-brand-subtle flex-shrink-0 transition-colors;
+    }
+    .dp-trigger:hover .dp-icon,
+    .dp-trigger.dp-open .dp-icon {
+        @apply text-brand-black;
+    }
+    .dp-calendar {
+        @apply absolute z-50 top-full mt-1.5 left-0
+               bg-brand-surface border border-brand-border rounded-xl
+               shadow-lg p-3 w-[272px];
+    }
+    .dp-cal-header {
+        @apply flex items-center justify-between mb-3;
+    }
+    .dp-prev, .dp-next {
+        @apply w-7 h-7 flex items-center justify-center rounded-lg
+               text-brand-muted hover:bg-brand-bg hover:text-brand-black
+               transition-colors cursor-pointer;
+    }
+    .dp-prev svg, .dp-next svg {
+        @apply w-[14px] h-[14px];
+    }
+    .dp-month-label {
+        @apply text-[13px] font-semibold text-brand-black;
+    }
+    .dp-grid {
+        @apply grid grid-cols-7;
+    }
+    .dp-dow {
+        @apply text-[9px] font-semibold text-brand-subtle text-center py-1.5 uppercase tracking-wide;
+    }
+    .dp-day {
+        @apply text-[12px] text-brand-black text-center py-1.5 rounded-lg
+               cursor-pointer hover:bg-brand-bg transition-colors leading-none;
+        aspect-ratio: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .dp-day.dp-other {
+        @apply text-brand-border cursor-default hover:bg-transparent;
+    }
+    .dp-day.dp-today {
+        @apply font-semibold ring-1 ring-brand-black/20;
+    }
+    .dp-day.dp-selected {
+        @apply bg-brand-black text-white font-semibold hover:bg-brand-black/85 ring-0;
+    }
+    .dp-day.dp-today.dp-selected {
+        @apply bg-brand-black text-white;
+    }
+    .dp-cal-footer {
+        @apply flex items-center justify-between mt-3 pt-2.5 border-t border-brand-border;
+    }
+    .dp-clear-btn {
+        @apply text-[11px] font-medium text-brand-subtle hover:text-status-red transition-colors cursor-pointer;
+    }
+    .dp-today-btn {
+        @apply text-[11px] font-medium text-brand-muted hover:text-brand-black transition-colors cursor-pointer;
+    }
+
+    .select {
+        @apply w-full bg-brand-surface border border-brand-border rounded-lg
+               px-3 h-9 text-[13px] text-brand-black placeholder:text-brand-subtle
+               outline-none focus:border-brand-black transition-colors cursor-pointer;
+    }
+    .textarea {
+        @apply w-full bg-brand-surface border border-brand-border rounded-lg
+               px-3 text-[13px] text-brand-black placeholder:text-brand-subtle
+               outline-none focus:border-brand-black transition-colors
+               h-auto py-2 resize-none;
+    }
+    .label {
+        @apply block text-[11px] font-medium text-brand-muted uppercase
+               tracking-wide mb-1;
+    }
+
+    /* ── Badges ──────────────────────────────────────────────── */
+    .badge {
+        @apply inline-flex items-center gap-1 text-[10px] font-semibold
+               px-2 py-0.5 rounded-full;
+    }
+    .badge-green  { @apply inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full bg-status-green-bg  text-status-green; }
+    .badge-amber  { @apply inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full bg-status-amber-bg  text-status-amber; }
+    .badge-red    { @apply inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full bg-status-red-bg    text-status-red;   }
+    .badge-blue   { @apply inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full bg-status-blue-bg   text-status-blue;  }
+    .badge-gray   { @apply inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full bg-brand-bg         text-brand-muted;  }
+
+    /* ── Priority badges ─────────────────────────────────────── */
+    .priority-P1 { @apply inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full bg-status-red-bg   text-status-red;   }
+    .priority-P2 { @apply inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full bg-status-amber-bg text-status-amber; }
+    .priority-P3 { @apply inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full bg-status-blue-bg  text-status-blue;  }
+    .priority-P4 { @apply inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full bg-brand-bg        text-brand-muted;  }
+
+    /* ── Status dots ─────────────────────────────────────────── */
+    .dot { @apply inline-block w-2 h-2 rounded-full; }
+    .dot-green  { @apply inline-block w-2 h-2 rounded-full bg-status-green; }
+    .dot-amber  { @apply inline-block w-2 h-2 rounded-full bg-status-amber; }
+    .dot-red    { @apply inline-block w-2 h-2 rounded-full bg-status-red;   }
+    .dot-blue   { @apply inline-block w-2 h-2 rounded-full bg-status-blue;  }
+    .dot-gray   { @apply inline-block w-2 h-2 rounded-full bg-brand-muted;  }
+
+    /* ── Table ───────────────────────────────────────────────── */
+    .table-header {
+        @apply text-[10px] font-semibold text-brand-muted uppercase tracking-wide
+               py-2 px-3 bg-brand-bg border-b border-brand-border;
+    }
+    .data-row {
+        @apply flex items-center gap-3 px-3 py-2.5 border-b border-brand-border/60
+               hover:bg-brand-bg transition-colors cursor-pointer;
+    }
+
+    /* ── KPI progress bar ────────────────────────────────────── */
+    .progress-bar {
+        @apply h-1 bg-brand-border rounded-full overflow-hidden;
+    }
+    .progress-bar-fill {
+        @apply h-full rounded-full transition-all duration-500;
+    }
+}

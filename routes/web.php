@@ -19,6 +19,7 @@ Route::get('/track', function (Request $request) {
     return redirect('https://t.me/pok_puthea');
 });
 
+
 // ── Auth ──────────────────────────────────────────────────────────────────────
 Route::middleware('guest')->group(function () {
     Route::get('/login',  [AuthController::class, 'showLogin'])->name('login');

@@ -57,6 +57,11 @@
     }
 
     /* ── Utility ─────────────────────────────────────────────── */
+    .collapsible-body {
+        overflow: hidden;
+        transition: max-height 0.3s ease;
+    }
+
     .scrollbar-none {
         scrollbar-width: none;
         -ms-overflow-style: none;

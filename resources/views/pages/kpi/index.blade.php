@@ -4,54 +4,97 @@
 @section('page-sub', 'Department performance & targets — ' . now()->format('F Y'))
 
 @section('content')
-<div class="space-y-5">
+<div class="space-y-4">
 
-    {{-- Status Summary --}}
-    <div class="grid grid-cols-3 gap-3">
-        @foreach([
-            ['label' => 'On Track',    'count' => $summary['on_track'],  'class' => 'text-status-green bg-status-green-bg border-status-green/20'],
-            ['label' => 'Near Target', 'count' => $summary['at_risk'],   'class' => 'text-status-amber bg-status-amber-bg border-status-amber/20'],
-            ['label' => 'Off Track',   'count' => $summary['off_track'], 'class' => 'text-status-red   bg-status-red-bg   border-status-red/20'],
-        ] as $s)
-            <a href="{{ route('kpi.index', ['status' => strtolower(str_replace(' ', '_', $s['label']))]) }}"
-               class="flex flex-col items-center py-3 rounded-xl border font-medium transition-all {{ $s['class'] }}
-                       {{ request('status') === strtolower(str_replace(' ', '_', $s['label'])) ? 'ring-2 ring-offset-1 ring-current/30' : '' }}">
-                <span class="text-[22px] font-bold leading-none">{{ $s['count'] }}</span>
-                <span class="text-[11px] mt-1 opacity-80">{{ $s['label'] }}</span>
-            </a>
-        @endforeach
-    </div>
-
-    {{-- Filter pills --}}
-    <div class="flex items-center gap-2 flex-wrap">
-        <svg class="w-[13px] h-[13px] text-brand-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/>
-        </svg>
-        @foreach(['All', 'On Track', 'Near Target', 'Off Track'] as $f)
-            <a href="{{ route('kpi.index', array_merge(request()->query(), ['status' => $f === 'All' ? '' : strtolower(str_replace(' ', '_', $f))])) }}"
-               class="text-[11px] font-medium px-3 py-1 rounded-full border transition-colors
-                      {{ (request('status', '') === ($f === 'All' ? '' : strtolower(str_replace(' ', '_', $f)))) ? 'bg-brand-black text-white border-brand-black' : 'border-brand-border text-brand-muted hover:border-brand-black hover:text-brand-black' }}">
-                {{ $f }}
-            </a>
-        @endforeach
-    </div>
-
-    {{-- KPI Grid --}}
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-3">
-        @foreach($kpis as $kpi)
-            @include('components.kpi-card', ['kpi' => $kpi])
-        @endforeach
-    </div>
-
-    @if($kpis->isEmpty())
-        <div class="text-center py-16 text-brand-muted text-[13px]">
-            No KPIs match the selected filter.
+    {{-- ── Section: Status Overview ──────────────────────────── --}}
+    <div>
+        <div class="flex items-center justify-between mb-3">
+            <h2 class="text-[13px] font-semibold text-brand-black">Status Overview</h2>
+            <button data-collapse-toggle="kpi-overview"
+                    class="cursor-pointer text-brand-muted hover:text-brand-black transition-colors p-1 rounded hover:bg-brand-bg">
+                <svg data-chevron class="w-[14px] h-[14px] transition-transform duration-200"
+                     fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                </svg>
+            </button>
         </div>
-    @endif
+        <div id="kpi-overview">
+        <div class="grid grid-cols-3 gap-3 mb-3">
+            @foreach([
+                ['label' => 'On Track',    'count' => $summary['on_track'],  'class' => 'text-status-green bg-status-green-bg border-status-green/20', 'key' => 'on_track'],
+                ['label' => 'Near Target', 'count' => $summary['at_risk'],   'class' => 'text-status-amber bg-status-amber-bg border-status-amber/20', 'key' => 'near_target'],
+                ['label' => 'Off Track',   'count' => $summary['off_track'], 'class' => 'text-status-red   bg-status-red-bg   border-status-red/20',   'key' => 'off_track'],
+            ] as $s)
+                <a href="{{ route('kpi.index', ['status' => $s['key']]) }}"
+                   class="flex flex-col items-center py-3 rounded-xl border font-medium transition-all {{ $s['class'] }}
+                           {{ request('status') === $s['key'] ? 'ring-2 ring-offset-1 ring-current/30' : '' }}">
+                    <span class="text-[22px] font-bold leading-none">{{ $s['count'] }}</span>
+                    <span class="text-[11px] mt-1 opacity-80">{{ $s['label'] }}</span>
+                </a>
+            @endforeach
+        </div>
 
-    {{-- Department Action Plans --}}
-    <section>
-        <h3 class="text-[13px] font-semibold text-brand-black mb-3">Department Action Plans</h3>
+        {{-- Filter pills --}}
+        <div class="flex items-center gap-2 flex-wrap">
+            <svg class="w-[13px] h-[13px] text-brand-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/>
+            </svg>
+            @foreach(['All', 'On Track', 'Near Target', 'Off Track'] as $f)
+                <a href="{{ route('kpi.index', array_merge(request()->query(), ['status' => $f === 'All' ? '' : strtolower(str_replace(' ', '_', $f))])) }}"
+                   class="text-[11px] font-medium px-3 py-1 rounded-full border transition-colors
+                          {{ (request('status', '') === ($f === 'All' ? '' : strtolower(str_replace(' ', '_', $f)))) ? 'bg-brand-black text-white border-brand-black' : 'border-brand-border text-brand-muted hover:border-brand-black hover:text-brand-black' }}">
+                    {{ $f }}
+                </a>
+            @endforeach
+        </div>
+        </div>
+    </div>
+
+    {{-- ── Section: KPI Metrics ───────────────────────────────── --}}
+    <div>
+        <div class="flex items-center justify-between mb-3">
+            <h2 class="text-[13px] font-semibold text-brand-black">
+                KPI Metrics
+                <span class="ml-1.5 text-[11px] font-normal text-brand-muted">({{ $kpis->count() }})</span>
+            </h2>
+            <button data-collapse-toggle="kpi-metrics"
+                    class="cursor-pointer text-brand-muted hover:text-brand-black transition-colors p-1 rounded hover:bg-brand-bg">
+                <svg data-chevron class="w-[14px] h-[14px] transition-transform duration-200"
+                     fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                </svg>
+            </button>
+        </div>
+        <div id="kpi-metrics">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-3">
+            @foreach($kpis as $kpi)
+                @include('components.kpi-card', ['kpi' => $kpi])
+            @endforeach
+        </div>
+        @if($kpis->isEmpty())
+            <div class="text-center py-16 text-brand-muted text-[13px]">
+                No KPIs match the selected filter.
+            </div>
+        @endif
+        </div>
+    </div>
+
+    {{-- ── Section: Department Action Plans ─────────────────────── --}}
+    <div>
+        <div class="flex items-center justify-between mb-3">
+            <h2 class="text-[13px] font-semibold text-brand-black">
+                Department Action Plans
+                <span class="ml-1.5 text-[11px] font-normal text-brand-muted">({{ $actionPlans->count() }})</span>
+            </h2>
+            <button data-collapse-toggle="kpi-plans"
+                    class="cursor-pointer text-brand-muted hover:text-brand-black transition-colors p-1 rounded hover:bg-brand-bg">
+                <svg data-chevron class="w-[14px] h-[14px] transition-transform duration-200"
+                     fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                </svg>
+            </button>
+        </div>
+        <div id="kpi-plans">
         <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
             @foreach($actionPlans as $plan)
                 <div class="card space-y-3">
@@ -102,6 +145,11 @@
                 </div>
             @endforeach
         </div>
-    </section>
+        @if($actionPlans->isEmpty())
+            <div class="text-center py-10 text-brand-muted text-[13px]">No action plans for this quarter.</div>
+        @endif
+        </div>
+    </div>
+
 </div>
 @endsection

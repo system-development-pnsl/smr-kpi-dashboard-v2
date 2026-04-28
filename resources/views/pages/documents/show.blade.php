@@ -205,35 +205,3 @@
 </div>
 @endsection
 
-@if(in_array($document->ai_status, ['pending', 'processing']))
-@push('scripts')
-<script>
-(function () {
-    if (!window.__PUSHER_KEY__) return;
-
-    const pusher  = new Pusher(window.__PUSHER_KEY__, { cluster: window.__PUSHER_CLUSTER__ });
-    const channel = pusher.subscribe('document.{{ $document->id }}');
-
-    channel.bind('extraction.done', function (data) {
-        pusher.unsubscribe('document.{{ $document->id }}');
-
-        const label = document.getElementById('processing-label');
-        if (label) label.textContent = 'Extraction complete!';
-
-        if (data.ai_status === 'failed') {
-            Swal.fire({
-                icon: 'error',
-                title: 'AI Extraction Failed',
-                text: 'The AI could not extract data from this document. Please try re-uploading.',
-                confirmButtonColor: '#111827',
-            });
-            return;
-        }
-
-        Toast.fire({ icon: 'success', title: 'AI extraction ready — loading results…' });
-        setTimeout(() => window.location.reload(), 1500);
-    });
-})();
-</script>
-@endpush
-@endif

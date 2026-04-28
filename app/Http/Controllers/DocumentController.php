@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use App\Jobs\ProcessDocumentWithAI;
 use App\Models\Department;
 use App\Models\Document;
 use App\Services\AiDocumentService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
@@ -49,15 +49,27 @@ class DocumentController extends Controller
             'department_id' => $request->department_id,
             'description'   => $request->description,
             'uploaded_by'   => auth()->id(),
-            'ai_status'     => 'pending',
+            'ai_status'     => 'processing',
         ]);
 
-        ProcessDocumentWithAI::dispatch($doc);
+        set_time_limit(180);
+
+        try {
+            $data = $this->aiService->extract($doc);
+            $doc->update(['ai_status' => 'extracted', 'extracted_data' => $data]);
+            $message = 'AI extraction complete — review and confirm the fields below.';
+            $level   = 'success';
+        } catch (\Throwable $e) {
+            Log::error('AI document extraction failed', ['document_id' => $doc->id, 'error' => $e->getMessage()]);
+            $doc->update(['ai_status' => 'failed']);
+            $message = 'Document uploaded but AI extraction failed. Please try again.';
+            $level   = 'error';
+        }
 
         if ($request->expectsJson()) {
-            return response()->json(['success' => true, 'message' => 'Document uploaded. AI processing started.', 'redirect' => route('documents.show', $doc)]);
+            return response()->json(['success' => true, 'message' => $message, 'redirect' => route('documents.show', $doc)]);
         }
-        return redirect()->route('documents.show', $doc)->with('success', 'Document uploaded. AI processing started.');
+        return redirect()->route('documents.show', $doc)->with($level, $message);
     }
 
     public function show(Document $document): View

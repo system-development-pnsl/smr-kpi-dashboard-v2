@@ -175,7 +175,7 @@
         </div>
 
         {{-- Pagination --}}
-        <div class="mt-3">{{ $tasks->withQueryString()->links() }}</div>
+        {{ $tasks->withQueryString()->links('components.pagination') }}
     </div>
 
     {{-- ── Kanban View ────────────────────────────────────────── --}}

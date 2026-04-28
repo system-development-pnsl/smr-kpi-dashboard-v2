@@ -180,6 +180,25 @@
         </div>
     </div>
 
+    {{-- ── Global loading overlay ─────────────────────────────── --}}
+    <div id="global-loading"
+         style="display:none;position:fixed;inset:0;z-index:9999;background:#fff;
+                flex-direction:column;align-items:center;justify-content:center;gap:20px;">
+        <div style="width:48px;height:48px;border:3px solid #e5e5e3;
+                    border-top-color:#0a0a0a;border-radius:50%;
+                    animation:spin 0.8s linear infinite;"></div>
+        <div style="text-align:center;">
+            <p id="global-loading-msg"
+               style="font-size:15px;font-weight:600;color:#0a0a0a;margin:0 0 6px;">
+                Processing…
+            </p>
+            <p style="font-size:12px;color:#737373;margin:0;">Please don't close this page.</p>
+        </div>
+    </div>
+    <style>
+        @keyframes spin { to { transform: rotate(360deg); } }
+    </style>
+
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     @if (config('broadcasting.default') === 'pusher' && config('broadcasting.connections.pusher.key'))
         <script src="https://js.pusher.com/8.2.0/pusher.min.js"></script>
@@ -200,6 +219,14 @@
                 t.onmouseleave = Swal.resumeTimer;
             }
         });
+
+        window.showLoading = function (msg) {
+            document.getElementById('global-loading-msg').textContent = msg || 'Processing…';
+            document.getElementById('global-loading').style.display = 'flex';
+        };
+        window.hideLoading = function () {
+            document.getElementById('global-loading').style.display = 'none';
+        };
 
         @if (session('success'))
             Toast.fire({
@@ -235,9 +262,7 @@
 
             const confirmBtn = form.querySelector('[data-confirm]');
             if (confirmBtn) {
-                const {
-                    isConfirmed
-                } = await Swal.fire({
+                const { isConfirmed } = await Swal.fire({
                     title: 'Are you sure?',
                     text: confirmBtn.dataset.confirm,
                     icon: 'warning',
@@ -251,12 +276,17 @@
                 if (!isConfirmed) return;
             }
 
+            const loadingMsg = form.dataset.loadingMessage;
+            if (loadingMsg) window.showLoading(loadingMsg);
+
             const btns = [...form.querySelectorAll('[type="submit"]')];
             const originals = btns.map(b => b.innerHTML);
             btns.forEach(b => {
                 b.disabled = true;
                 b.innerHTML = '<span style="opacity:.5">…</span>';
             });
+
+            let redirecting = false;
 
             try {
                 const res = await fetch(form.action || window.location.href, {
@@ -282,10 +312,7 @@
                             confirmButtonColor: '#111827',
                         });
                     } else {
-                        Toast.fire({
-                            icon: 'error',
-                            title: data.message || 'Something went wrong.'
-                        });
+                        Toast.fire({ icon: 'error', title: data.message || 'Something went wrong.' });
                     }
                     return;
                 }
@@ -300,60 +327,56 @@
                     }
                 }
 
-                Toast.fire({
-                    icon: 'success',
-                    title: data.message || 'Done'
-                });
-
                 if (data.redirect) {
-                    setTimeout(() => {
-                        window.location.href = data.redirect;
-                    }, 1200);
-                } else if (!removeSelector) {
-                    form.reset();
-                    form.dispatchEvent(new CustomEvent('ajax:success', {
-                        detail: data,
-                        bubbles: true
-                    }));
+                    redirecting = true;
+                    if (loadingMsg) {
+                        window.showLoading('Done — loading results…');
+                    } else {
+                        Toast.fire({ icon: 'success', title: data.message || 'Done' });
+                    }
+                    setTimeout(() => { window.location.href = data.redirect; }, loadingMsg ? 400 : 1200);
+                } else {
+                    Toast.fire({ icon: 'success', title: data.message || 'Done' });
+                    if (!removeSelector) {
+                        form.reset();
+                        form.dispatchEvent(new CustomEvent('ajax:success', { detail: data, bubbles: true }));
+                    }
                 }
 
             } catch {
-                Toast.fire({
-                    icon: 'error',
-                    title: 'Network error. Please try again.'
-                });
+                Toast.fire({ icon: 'error', title: 'Network error. Please try again.' });
             } finally {
-                btns.forEach((b, i) => {
-                    b.disabled = false;
-                    b.innerHTML = originals[i];
-                });
+                if (!redirecting) {
+                    if (loadingMsg) window.hideLoading();
+                    btns.forEach((b, i) => { b.disabled = false; b.innerHTML = originals[i]; });
+                }
             }
         });
     </script>
     <script>
-    $(function () {
-        $('[data-collapse-toggle]').each(function () {
-            var id = $(this).data('collapse-toggle');
-            if (localStorage.getItem('sec:' + id) === '0') {
-                $('#' + id).hide();
-                $(this).find('[data-chevron]').addClass('rotate-180');
-            }
+        $(function() {
+            $('[data-collapse-toggle]').each(function() {
+                var id = $(this).data('collapse-toggle');
+                if (localStorage.getItem('sec:' + id) === '0') {
+                    $('#' + id).hide();
+                    $(this).find('[data-chevron]').addClass('rotate-180');
+                }
+            });
+            $(document).on('click', '[data-collapse-toggle]', function() {
+                var id = $(this).data('collapse-toggle');
+                var $el = $('#' + id);
+                var $ico = $(this).find('[data-chevron]');
+                if ($el.is(':visible')) {
+                    $el.slideUp(220);
+                    $ico.addClass('rotate-180');
+                    localStorage.setItem('sec:' + id, '0');
+                } else {
+                    $el.slideDown(220);
+                    $ico.removeClass('rotate-180');
+                    localStorage.setItem('sec:' + id, '1');
+                }
+            });
         });
-        $(document).on('click', '[data-collapse-toggle]', function () {
-            var id   = $(this).data('collapse-toggle');
-            var $el  = $('#' + id);
-            var $ico = $(this).find('[data-chevron]');
-            if ($el.is(':visible')) {
-                $el.slideUp(220);
-                $ico.addClass('rotate-180');
-                localStorage.setItem('sec:' + id, '0');
-            } else {
-                $el.slideDown(220);
-                $ico.removeClass('rotate-180');
-                localStorage.setItem('sec:' + id, '1');
-            }
-        });
-    });
     </script>
     @stack('scripts')
 

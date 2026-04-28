@@ -88,7 +88,7 @@
         @endforelse
     </div>
 
-    <div class="mt-3">{{ $reports->links() }}</div>
+    {{ $reports->links('components.pagination') }}
 
 </div>
 @endsection

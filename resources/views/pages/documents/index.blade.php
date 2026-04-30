@@ -5,8 +5,6 @@
 
 @section('content')
     <div class="space-y-4">
-
-        {{-- Upload card --}}
         <div class="card">
             <p class="text-[11px] font-semibold text-brand-black mb-3">Upload Document</p>
             <form method="POST" action="{{ route('documents.upload') }}" enctype="multipart/form-data"

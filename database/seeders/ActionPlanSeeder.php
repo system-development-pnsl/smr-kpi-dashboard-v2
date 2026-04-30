@@ -13,7 +13,7 @@ class ActionPlanSeeder extends Seeder
 {
     public function run(): void
     {
-        $gm    = User::where('email', 'gm@smrhotel.com')->first();
+        $gm    = User::where('email', 'gm@sunmoon.hotel')->first();
         $agm   = User::where('email', 'agm@smrhotel.com')->first();
         $fin   = User::where('email', 'finance@smrhotel.com')->first();
         $hr    = User::where('email', 'hr@smrhotel.com')->first();
@@ -113,7 +113,7 @@ class ActionPlanSeeder extends Seeder
                     [
                         'due_date'      => $item['due_date'],
                         'assignee_id'   => $item['assignee_id'],
-                        'completion_pct'=> $item['completion_pct'],
+                        'completion_pct' => $item['completion_pct'],
                         'status'        => $item['status'],
                         'sort_order'    => $i + 1,
                         'completed_at'  => $item['status'] === 'completed' ? now() : null,
@@ -167,7 +167,7 @@ class ActionPlanSeeder extends Seeder
                     [
                         'due_date'      => $item['due_date'],
                         'assignee_id'   => $item['assignee_id'],
-                        'completion_pct'=> $item['completion_pct'],
+                        'completion_pct' => $item['completion_pct'],
                         'status'        => $item['status'],
                         'sort_order'    => $i + 1,
                         'completed_at'  => now()->subDays(5),

@@ -10,6 +10,7 @@ use App\Http\Controllers\DocumentController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\CompanySettingController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
@@ -94,7 +95,13 @@ Route::middleware('auth')->group(function () {
     });
 
     // Profile
-    Route::get('/profile',  [UserController::class, 'profile'])->name('profile');
-    Route::put('/profile',  [UserController::class, 'updateProfile'])->name('profile.update');
-    Route::put('/password', [UserController::class, 'changePassword'])->name('password.change');
+    Route::get('/profile',    [UserController::class, 'profile'])->name('profile');
+    Route::put('/profile',    [UserController::class, 'updateProfile'])->name('profile.update');
+    Route::put('/password',   [UserController::class, 'changePassword'])->name('password.change');
+    Route::post('/profile/photo', [UserController::class, 'updatePhoto'])->name('profile.photo');
+
+    // Settings
+    Route::get('/settings/company',        [CompanySettingController::class, 'index'])->name('settings.company');
+    Route::put('/settings/company',        [CompanySettingController::class, 'update'])->name('settings.company.update');
+    Route::post('/settings/company/logo',  [CompanySettingController::class, 'uploadLogo'])->name('settings.company.logo');
 });

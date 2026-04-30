@@ -14,19 +14,16 @@
 <body class="h-full overflow-hidden">
 
     <div class="flex h-screen w-screen overflow-hidden bg-brand-bg">
-
-        {{-- Mobile backdrop --}}
         <div id="sidebar-backdrop" class="fixed inset-0 bg-black/50 z-40 hidden md:hidden"></div>
-
-        {{-- ── Sidebar ────────────────────────────────────────────── --}}
         <aside id="sidebar" style="transition: transform 0.3s ease, width 0.3s ease;"
             class="flex flex-col h-screen bg-brand-black text-white flex-shrink-0
                fixed inset-y-0 left-0 z-50 w-[220px]
                md:relative md:translate-x-0">
             {{-- Logo --}}
             <div id="sidebar-logo" class="flex items-center border-b border-white/10 h-14 flex-shrink-0 px-4 gap-2.5">
-                <div class="w-7 h-7 bg-white rounded flex items-center justify-center flex-shrink-0">
-                    <span class="text-brand-black font-bold text-[10px] leading-none">S&M</span>
+                <div style="width:32px;height:32px;border-radius:8px;overflow:hidden;flex-shrink:0;padding:2px;">
+                    <img src="https://smr-zone.b-cdn.net/wp-content/uploads/2025/09/sun-and-moon-river-side-logo.png"
+                        alt="SMR Logo" style="width:100%;height:100%;object-fit:contain;display:block;">
                 </div>
                 <div class="sidebar-expanded overflow-hidden">
                     <p class="text-[11px] font-semibold leading-tight tracking-wide whitespace-nowrap">SUN & MOON</p>
@@ -35,42 +32,79 @@
             </div>
 
             {{-- Navigation --}}
-            <nav class="flex-1 py-3 overflow-y-auto overflow-x-hidden">
-                <p class="sidebar-expanded px-4 mb-2 text-[9px] font-semibold tracking-widest text-white/30 uppercase">
-                    Navigation
-                </p>
-                <ul class="space-y-0.5 px-2">
-                    @php
-                        $navItems = [
-                            ['route' => 'dashboard', 'label' => 'Overview', 'icon' => 'grid'],
-                            ['route' => 'kpi.index', 'label' => 'KPI Dashboard', 'icon' => 'chart-bar'],
-                            ['route' => 'tasks.index', 'label' => 'Task Management', 'icon' => 'check-square'],
-                            ['route' => 'financial.index', 'label' => 'Financial', 'icon' => 'dollar-sign'],
-                            ['route' => 'documents.index', 'label' => 'Documents & AI', 'icon' => 'file-search'],
-                            ['route' => 'reports.index', 'label' => 'Reports', 'icon' => 'file-text'],
-                        ];
-                    @endphp
+            <nav class="flex-1 py-3 overflow-y-auto overflow-x-hidden scrollbar-none">
 
-                    @foreach ($navItems as $item)
-                        <li>
-                            <a href="{{ route($item['route']) }}" title="{{ $item['label'] }}"
-                                class="sidebar-link {{ request()->routeIs($item['route'] . '*') ? 'active' : '' }} h-9 px-3"
-                                data-sidebar-link>
-                                @include('components.icons.' . $item['icon'], [
-                                    'class' => 'w-[15px] h-[15px] flex-shrink-0',
-                                ])
-                                <span class="sidebar-expanded truncate">{{ $item['label'] }}</span>
-                                @if (request()->routeIs($item['route'] . '*'))
-                                    <svg class="sidebar-expanded ml-auto w-3 h-3 opacity-60" fill="none"
-                                        stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M9 5l7 7-7 7" />
-                                    </svg>
-                                @endif
-                            </a>
-                        </li>
-                    @endforeach
-                </ul>
+                @php
+                    $link = function (string $route, string $label, string $icon) {
+                        $active = request()->routeIs($route . '*');
+                        return compact('route', 'label', 'icon', 'active');
+                    };
+
+                    $sections = [
+                        [
+                            'label' => null,
+                            'items' => [$link('dashboard', 'Dashboard', 'grid')],
+                        ],
+                        [
+                            'label' => 'Hotel Performance',
+                            'items' => [
+                                $link('reports.index', 'Operations', 'file-text'),
+                                $link('financial.index', 'Financial', 'dollar-sign'),
+                                $link('documents.index', 'Documents & AI', 'file-search'),
+                            ],
+                        ],
+                        [
+                            'label' => 'Team Performance',
+                            'items' => [
+                                $link('kpi.index', 'KPI Management', 'chart-bar'),
+                                $link('tasks.index', 'Task Management', 'check-square'),
+                            ],
+                        ],
+                        [
+                            'label' => 'System',
+                            'items' => [
+                                $link('profile', 'User Setting', 'user-cog'),
+                                $link('settings.company', 'Company Setting', 'building'),
+                            ],
+                        ],
+                    ];
+                @endphp
+
+                @foreach ($sections as $section)
+                    @if ($section['label'])
+                        <p
+                            class="sidebar-expanded px-4 pt-4 pb-1.5 text-[9px] font-semibold tracking-widest text-white/30 uppercase">
+                            {{ $section['label'] }}
+                        </p>
+                        <div class="sidebar-collapsed flex justify-center px-2 pt-3 pb-1">
+                            <div class="w-full border-t border-white/10"></div>
+                        </div>
+                    @else
+                        <div class="mb-1"></div>
+                    @endif
+
+                    <ul class="space-y-0.5 px-2">
+                        @foreach ($section['items'] as $item)
+                            <li>
+                                <a href="{{ route($item['route']) }}" title="{{ $item['label'] }}"
+                                    class="sidebar-link {{ $item['active'] ? 'active' : '' }}" data-sidebar-link>
+                                    @include('components.icons.' . $item['icon'], [
+                                        'class' => 'w-[15px] h-[15px] flex-shrink-0',
+                                    ])
+                                    <span class="sidebar-expanded truncate">{{ $item['label'] }}</span>
+                                    @if ($item['active'])
+                                        <svg class="sidebar-expanded ml-auto w-3 h-3 opacity-50 flex-shrink-0"
+                                            fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M9 5l7 7-7 7" />
+                                        </svg>
+                                    @endif
+                                </a>
+                            </li>
+                        @endforeach
+                    </ul>
+                @endforeach
+
             </nav>
 
             {{-- User area --}}
@@ -134,9 +168,17 @@
                 {{-- Toggle --}}
                 <button id="sidebar-toggle"
                     class="text-brand-muted hover:text-brand-black transition-colors p-1 rounded hover:bg-brand-bg">
-                    <svg class="w-[17px] h-[17px]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    {{-- Hamburger: shown when sidebar is collapsed --}}
+                    <svg id="toggle-icon-open" class="w-[17px] h-[17px]" fill="none" stroke="currentColor"
+                        viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M4 6h16M4 12h16M4 18h16" />
+                    </svg>
+                    {{-- Close panel: shown when sidebar is expanded --}}
+                    <svg id="toggle-icon-close" class="w-[17px] h-[17px]" fill="none" stroke="currentColor"
+                        viewBox="0 0 24 24" style="display:none">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M11 19l-7-7 7-7M18 19l-7-7 7-7" />
                     </svg>
                 </button>
 
@@ -149,8 +191,8 @@
                 {{-- Search --}}
                 <form action="{{ route('search') }}" method="GET"
                     class="hidden md:flex items-center gap-2 bg-brand-bg border border-brand-border rounded-lg px-3 h-8 w-44 focus-within:border-brand-black focus-within:w-56 transition-all duration-200">
-                    <svg class="w-[13px] h-[13px] text-brand-subtle flex-shrink-0" fill="none" stroke="currentColor"
-                        viewBox="0 0 24 24">
+                    <svg class="w-[13px] h-[13px] text-brand-subtle flex-shrink-0" fill="none"
+                        stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0" />
                     </svg>
@@ -182,21 +224,26 @@
 
     {{-- ── Global loading overlay ─────────────────────────────── --}}
     <div id="global-loading"
-         style="display:none;position:fixed;inset:0;z-index:9999;background:#fff;
+        style="display:none;position:fixed;inset:0;z-index:9999;background:#fff;
                 flex-direction:column;align-items:center;justify-content:center;gap:20px;">
-        <div style="width:48px;height:48px;border:3px solid #e5e5e3;
+        <div
+            style="width:48px;height:48px;border:3px solid #e5e5e3;
                     border-top-color:#0a0a0a;border-radius:50%;
-                    animation:spin 0.8s linear infinite;"></div>
+                    animation:spin 0.8s linear infinite;">
+        </div>
         <div style="text-align:center;">
-            <p id="global-loading-msg"
-               style="font-size:15px;font-weight:600;color:#0a0a0a;margin:0 0 6px;">
+            <p id="global-loading-msg" style="font-size:15px;font-weight:600;color:#0a0a0a;margin:0 0 6px;">
                 Processing…
             </p>
             <p style="font-size:12px;color:#737373;margin:0;">Please don't close this page.</p>
         </div>
     </div>
     <style>
-        @keyframes spin { to { transform: rotate(360deg); } }
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
     </style>
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -220,11 +267,11 @@
             }
         });
 
-        window.showLoading = function (msg) {
+        window.showLoading = function(msg) {
             document.getElementById('global-loading-msg').textContent = msg || 'Processing…';
             document.getElementById('global-loading').style.display = 'flex';
         };
-        window.hideLoading = function () {
+        window.hideLoading = function() {
             document.getElementById('global-loading').style.display = 'none';
         };
 
@@ -262,7 +309,9 @@
 
             const confirmBtn = form.querySelector('[data-confirm]');
             if (confirmBtn) {
-                const { isConfirmed } = await Swal.fire({
+                const {
+                    isConfirmed
+                } = await Swal.fire({
                     title: 'Are you sure?',
                     text: confirmBtn.dataset.confirm,
                     icon: 'warning',
@@ -312,7 +361,10 @@
                             confirmButtonColor: '#111827',
                         });
                     } else {
-                        Toast.fire({ icon: 'error', title: data.message || 'Something went wrong.' });
+                        Toast.fire({
+                            icon: 'error',
+                            title: data.message || 'Something went wrong.'
+                        });
                     }
                     return;
                 }
@@ -332,23 +384,40 @@
                     if (loadingMsg) {
                         window.showLoading('Done — loading results…');
                     } else {
-                        Toast.fire({ icon: 'success', title: data.message || 'Done' });
+                        Toast.fire({
+                            icon: 'success',
+                            title: data.message || 'Done'
+                        });
                     }
-                    setTimeout(() => { window.location.href = data.redirect; }, loadingMsg ? 400 : 1200);
+                    setTimeout(() => {
+                        window.location.href = data.redirect;
+                    }, loadingMsg ? 400 : 1200);
                 } else {
-                    Toast.fire({ icon: 'success', title: data.message || 'Done' });
+                    Toast.fire({
+                        icon: 'success',
+                        title: data.message || 'Done'
+                    });
                     if (!removeSelector) {
                         form.reset();
-                        form.dispatchEvent(new CustomEvent('ajax:success', { detail: data, bubbles: true }));
+                        form.dispatchEvent(new CustomEvent('ajax:success', {
+                            detail: data,
+                            bubbles: true
+                        }));
                     }
                 }
 
             } catch {
-                Toast.fire({ icon: 'error', title: 'Network error. Please try again.' });
+                Toast.fire({
+                    icon: 'error',
+                    title: 'Network error. Please try again.'
+                });
             } finally {
                 if (!redirecting) {
                     if (loadingMsg) window.hideLoading();
-                    btns.forEach((b, i) => { b.disabled = false; b.innerHTML = originals[i]; });
+                    btns.forEach((b, i) => {
+                        b.disabled = false;
+                        b.innerHTML = originals[i];
+                    });
                 }
             }
         });

@@ -13,8 +13,10 @@
 
     {{-- Logo --}}
     <div class="text-center mb-8">
-        <div class="inline-flex items-center justify-center w-12 h-12 bg-brand-black rounded-xl mb-4">
-            <span class="text-white font-bold text-sm">S&M</span>
+        <div style="margin-bottom:16px;">
+            <img src="https://smr-zone.b-cdn.net/wp-content/uploads/2025/09/sun-and-moon-river-side-logo.png"
+                 alt="Sun & Moon Riverside Hotel"
+                 style="width:80px;height:80px;object-fit:contain;display:block;margin:0 auto;">
         </div>
         <h1 class="text-[20px] font-semibold text-brand-black">Sun & Moon</h1>
         <p class="text-[12px] text-brand-muted mt-0.5">Riverside Hotel — Operations Dashboard</p>

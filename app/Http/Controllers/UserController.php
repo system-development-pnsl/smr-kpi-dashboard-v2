@@ -8,6 +8,8 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Illuminate\View\View;
 
 class UserController extends Controller
@@ -76,6 +78,27 @@ class UserController extends Controller
             return response()->json(['success' => true, 'message' => 'Profile updated.']);
         }
         return back()->with('success', 'Profile updated.');
+    }
+
+    public function updatePhoto(Request $request): JsonResponse|RedirectResponse
+    {
+        $request->validate(['photo' => 'required|image|mimes:jpeg,png,jpg,gif,webp|max:2048']);
+
+        $user = auth()->user();
+
+        if ($user->profile_photo) {
+            Storage::disk('public')->delete($user->profile_photo);
+        }
+
+        $ext  = $request->file('photo')->getClientOriginalExtension();
+        $path = $request->file('photo')->storeAs('profile-photos', Str::uuid() . '.' . $ext, 'public');
+
+        $user->update(['profile_photo' => $path]);
+
+        if ($request->expectsJson()) {
+            return response()->json(['success' => true, 'message' => 'Profile photo updated.']);
+        }
+        return back()->with('success', 'Profile photo updated.');
     }
 
     public function changePassword(Request $request): JsonResponse|RedirectResponse

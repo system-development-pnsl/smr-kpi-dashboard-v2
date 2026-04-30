@@ -14,7 +14,7 @@ class KpiSeeder extends Seeder
 {
     public function run(): void
     {
-        $submitter = User::where('email', 'gm@smrhotel.com')->first();
+        $submitter = User::where('email', 'gm@sunmoon.hotel')->first();
         $setter    = User::where('email', 'finance@smrhotel.com')->first();
 
         $fo    = Department::where('code', 'FO')->first();

@@ -41,6 +41,9 @@ $(function () {
     }
 
     function applySidebar() {
+        $('#toggle-icon-open').toggle(collapsed)
+        $('#toggle-icon-close').toggle(!collapsed)
+
         if (isMobile()) {
             // Mobile: use inline style so CSS class order doesn't interfere
             $sidebar[0].style.transform = collapsed ? 'translateX(-100%)' : 'translateX(0)'
@@ -277,6 +280,54 @@ $(function () {
     $(document).on('keydown', function (e) {
         if (e.key === 'Escape') closeAllDropdowns()
     })
+
+    // ── KPI card hide / show ──────────────────────────────────────
+    const KPI_HIDDEN_KEY = 'kpi_hidden_v1'
+
+    function getHiddenKpis() {
+        try { return JSON.parse(localStorage.getItem(KPI_HIDDEN_KEY)) || [] } catch { return [] }
+    }
+
+    function applyKpiVisibility() {
+        if (!$('[data-kpi-id]').length) return
+        const hidden = getHiddenKpis()
+        let count = 0
+        $('[data-kpi-id]').each(function () {
+            const id   = String($(this).data('kpi-id'))
+            const hide = hidden.includes(id)
+            $(this).toggle(!hide)
+            if (hide) count++
+        })
+        $('#kpi-hidden-count').text(count)
+        $('#kpi-hidden-bar').toggle(count > 0)
+    }
+
+    // Show hide-button on card hover
+    $(document).on('mouseenter', '[data-kpi-id]', function () {
+        $(this).find('.kpi-hide-btn').css('opacity', '1')
+    }).on('mouseleave', '[data-kpi-id]', function () {
+        $(this).find('.kpi-hide-btn').css('opacity', '0')
+    })
+
+    // Click hide button
+    $(document).on('click', '.kpi-hide-btn', function (e) {
+        e.stopPropagation()
+        const id     = String($(this).closest('[data-kpi-id]').data('kpi-id'))
+        const hidden = getHiddenKpis()
+        if (!hidden.includes(id)) {
+            hidden.push(id)
+            localStorage.setItem(KPI_HIDDEN_KEY, JSON.stringify(hidden))
+        }
+        applyKpiVisibility()
+    })
+
+    // Show all hidden cards
+    $(document).on('click', '#kpi-show-all-btn', function () {
+        localStorage.removeItem(KPI_HIDDEN_KEY)
+        applyKpiVisibility()
+    })
+
+    applyKpiVisibility()
 
     // ── Custom Date Picker ────────────────────────────────────────────────────
     const MONTH_NAMES = ['January','February','March','April','May','June',

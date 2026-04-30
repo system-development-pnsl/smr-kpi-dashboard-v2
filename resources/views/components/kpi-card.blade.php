@@ -20,14 +20,24 @@
     };
 @endphp
 
-<div class="card card-hover flex flex-col gap-3">
+<div class="card card-hover flex flex-col gap-3 relative" data-kpi-id="{{ $kpi->id }}">
     {{-- Top row --}}
     <div class="flex items-start justify-between gap-2">
         <div class="flex-1 min-w-0">
             <p class="text-[11px] font-medium text-brand-muted uppercase tracking-wide truncate">{{ $kpi->name }}</p>
             <p class="text-[22px] font-semibold text-brand-black leading-tight mt-0.5 tracking-tight">{{ $displayValue }}</p>
         </div>
-        <span class="{{ $badgeClasses[$status] }}">{{ $statusLabels[$status] }}</span>
+        <div class="flex items-center gap-1.5 flex-shrink-0">
+            <span class="{{ $badgeClasses[$status] }}">{{ $statusLabels[$status] }}</span>
+            <button type="button" class="kpi-hide-btn w-5 h-5 flex items-center justify-center rounded
+                    text-brand-subtle hover:text-brand-black hover:bg-brand-bg transition-colors"
+                    style="opacity:0;" title="Hide card">
+                <svg class="w-[11px] h-[11px]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 4.411m0 0L21 21"/>
+                </svg>
+            </button>
+        </div>
     </div>
 
     {{-- Sparkline --}}

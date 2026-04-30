@@ -19,6 +19,7 @@ class DatabaseSeeder extends Seeder
             FinancialSeeder::class,
             ActionPlanSeeder::class,
             DocumentSeeder::class,
+            NotificationSeeder::class,
         ]);
     }
 }

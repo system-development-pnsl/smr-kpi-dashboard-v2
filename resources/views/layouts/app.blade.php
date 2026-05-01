@@ -49,6 +49,7 @@
                             'label' => 'Hotel Performance',
                             'items' => [
                                 $link('reports.index', 'Operations', 'file-text'),
+                                $link('kpi.index', 'Operations Overview', 'chart-bar'),
                                 $link('financial.index', 'Financial', 'dollar-sign'),
                                 $link('documents.index', 'Documents & AI', 'file-search'),
                             ],
@@ -56,7 +57,6 @@
                         [
                             'label' => 'Team Performance',
                             'items' => [
-                                $link('kpi.index', 'KPI Management', 'chart-bar'),
                                 $link('tasks.index', 'Task Management', 'check-square'),
                             ],
                         ],

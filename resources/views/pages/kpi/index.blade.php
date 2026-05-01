@@ -1,6 +1,6 @@
 @extends('layouts.app')
-@section('title', 'KPI Dashboard')
-@section('page-title', 'KPI Dashboard')
+@section('title', 'Operations Overview')
+@section('page-title', 'Operations Overview')
 @section('page-sub', 'Department performance & targets — ' . now()->format('F Y'))
 
 @section('content')
@@ -69,7 +69,7 @@
                 </svg>
             </div>
             <h2 class="text-[13px] font-semibold text-brand-black flex-1">
-                KPI Metrics
+                Operations Overview
                 <span class="ml-1.5 text-[11px] font-normal text-brand-muted">({{ $kpis->count() }})</span>
             </h2>
             <button data-collapse-toggle="kpi-metrics"

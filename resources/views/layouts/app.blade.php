@@ -43,37 +43,36 @@
                     $sections = [
                         [
                             'label' => 'Overview',
-                            'items' => [
-                                $link('home', 'Home', 'home'),
-                            ],
+                            'items' => [$link('home', 'Home', 'home')],
                         ],
                         [
                             'label' => 'Hotel Performance',
                             'items' => [
-                                $link('reports.index',   'Operations',    'file-text'),
-                                $link('financial.index', 'Financial',     'dollar-sign'),
-                                $link('documents.index', 'Documents & AI','file-search'),
+                                $link('reports.index', 'Operations', 'file-text'),
+                                $link('financial.index', 'Financial', 'dollar-sign'),
                             ],
                         ],
                         [
                             'label' => 'Team Performance',
                             'items' => [
-                                $link('kpi.index',   'KPI Tracking',    'chart-bar'),
+                                $link('kpi.index', 'KPI Tracking', 'chart-bar'),
                                 $link('tasks.index', 'Task Management', 'check-square'),
                             ],
                         ],
                         [
                             'label' => 'System',
                             'items' => [
-                                $link('profile',           'User Setting',    'user-cog'),
-                                $link('settings.company',  'Company Setting', 'building'),
+                                $link('profile', 'User Setting', 'user-cog'),
+                                $link('settings.company', 'Company Setting', 'building'),
+                                $link('documents.index', 'Documents & AI', 'file-search'),
                             ],
                         ],
                     ];
                 @endphp
 
                 @foreach ($sections as $section)
-                    <p class="sidebar-expanded px-4 pt-4 pb-1.5 text-[9px] font-semibold tracking-widest text-white/30 uppercase">
+                    <p
+                        class="sidebar-expanded px-4 pt-4 pb-1.5 text-[9px] font-semibold tracking-widest text-white/30 uppercase">
                         {{ $section['label'] }}
                     </p>
                     <div class="sidebar-collapsed flex justify-center px-2 pt-3 pb-1">
@@ -188,8 +187,8 @@
                 {{-- Search --}}
                 <form action="{{ route('search') }}" method="GET"
                     class="hidden md:flex items-center gap-2 bg-brand-bg border border-brand-border rounded-lg px-3 h-8 w-44 focus-within:border-brand-black focus-within:w-56 transition-all duration-200">
-                    <svg class="w-[13px] h-[13px] text-brand-subtle flex-shrink-0" fill="none"
-                        stroke="currentColor" viewBox="0 0 24 24">
+                    <svg class="w-[13px] h-[13px] text-brand-subtle flex-shrink-0" fill="none" stroke="currentColor"
+                        viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0" />
                     </svg>

@@ -42,46 +42,43 @@
 
                     $sections = [
                         [
-                            'label' => null,
-                            'items' => [$link('dashboard', 'Dashboard', 'grid')],
+                            'label' => 'Overview',
+                            'items' => [
+                                $link('home', 'Home', 'home'),
+                            ],
                         ],
                         [
                             'label' => 'Hotel Performance',
                             'items' => [
-                                $link('reports.index', 'Operations', 'file-text'),
-                                $link('kpi.index', 'Operations Overview', 'chart-bar'),
-                                $link('financial.index', 'Financial', 'dollar-sign'),
-                                $link('documents.index', 'Documents & AI', 'file-search'),
+                                $link('reports.index',   'Operations',    'file-text'),
+                                $link('financial.index', 'Financial',     'dollar-sign'),
+                                $link('documents.index', 'Documents & AI','file-search'),
                             ],
                         ],
                         [
                             'label' => 'Team Performance',
                             'items' => [
+                                $link('kpi.index',   'KPI Tracking',    'chart-bar'),
                                 $link('tasks.index', 'Task Management', 'check-square'),
                             ],
                         ],
                         [
                             'label' => 'System',
                             'items' => [
-                                $link('profile', 'User Setting', 'user-cog'),
-                                $link('settings.company', 'Company Setting', 'building'),
+                                $link('profile',           'User Setting',    'user-cog'),
+                                $link('settings.company',  'Company Setting', 'building'),
                             ],
                         ],
                     ];
                 @endphp
 
                 @foreach ($sections as $section)
-                    @if ($section['label'])
-                        <p
-                            class="sidebar-expanded px-4 pt-4 pb-1.5 text-[9px] font-semibold tracking-widest text-white/30 uppercase">
-                            {{ $section['label'] }}
-                        </p>
-                        <div class="sidebar-collapsed flex justify-center px-2 pt-3 pb-1">
-                            <div class="w-full border-t border-white/10"></div>
-                        </div>
-                    @else
-                        <div class="mb-1"></div>
-                    @endif
+                    <p class="sidebar-expanded px-4 pt-4 pb-1.5 text-[9px] font-semibold tracking-widest text-white/30 uppercase">
+                        {{ $section['label'] }}
+                    </p>
+                    <div class="sidebar-collapsed flex justify-center px-2 pt-3 pb-1">
+                        <div class="w-full border-t border-white/10"></div>
+                    </div>
 
                     <ul class="space-y-0.5 px-2">
                         @foreach ($section['items'] as $item)

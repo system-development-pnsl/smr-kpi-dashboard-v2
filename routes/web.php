@@ -11,6 +11,7 @@ use App\Http\Controllers\ReportController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\CompanySettingController;
+use App\Http\Controllers\HomeController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
@@ -36,9 +37,12 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout')->middl
 // ── Authenticated ─────────────────────────────────────────────────────────────
 Route::middleware('auth')->group(function () {
 
+    // Home greeting (default landing after login)
+    Route::get('/',          [HomeController::class,    'index'])->name('home');
+
     // Dashboard
-    Route::get('/',        [DashboardController::class, 'index'])->name('dashboard');
-    Route::get('/search',  [DashboardController::class, 'search'])->name('search');
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/search',    [DashboardController::class, 'search'])->name('search');
 
     // Tasks
     Route::resource('tasks', TaskController::class);

@@ -4,29 +4,192 @@
 @section('page-sub', 'Department performance & targets — ' . now()->format('F Y'))
 
 @section('content')
-<div id="kpi-container" style="display:flex;flex-direction:column;gap:16px;">
+<div style="display:flex;flex-direction:column;gap:8px;">
 
-    {{-- ── Row: Status Overview ─────────────────────────────────── --}}
-    <div id="row-kpi-overview" draggable="true" class="kpi-row">
-        <div class="flex items-center gap-2 mb-3">
-            <div class="dash-grip" title="Drag to reorder"
-                 style="cursor:grab;color:#d4d4d4;display:flex;align-items:center;flex-shrink:0;">
-                <svg style="width:11px;height:15px;" fill="currentColor" viewBox="0 0 10 16">
-                    <circle cx="2.5" cy="2"  r="1.3"/><circle cx="7.5" cy="2"  r="1.3"/>
-                    <circle cx="2.5" cy="8"  r="1.3"/><circle cx="7.5" cy="8"  r="1.3"/>
-                    <circle cx="2.5" cy="14" r="1.3"/><circle cx="7.5" cy="14" r="1.3"/>
+    {{-- ── Row: Department Action Plans (TOP) ─────────────────────── --}}
+    <div style="background:#fff;border:1px solid #e5e5e3;border-radius:14px;overflow:hidden;">
+        <button class="fin-toggle" data-target="kpi-plans"
+                style="width:100%;display:flex;align-items:center;gap:12px;padding:16px 20px;background:transparent;border:none;cursor:pointer;text-align:left;transition:background .15s;"
+                onmouseover="this.style.background='#f9f9f8'" onmouseout="this.style.background='transparent'">
+            <div class="fin-arrow-wrap" style="width:24px;height:24px;border-radius:8px;background:#f3f3f2;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background .15s;">
+                <svg class="fin-arrow" style="width:9px;height:9px;transition:transform .2s;transform:rotate(90deg);" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M5 3l14 9-14 9V3z"/>
                 </svg>
             </div>
-            <h2 class="text-[13px] font-semibold text-brand-black flex-1">Status Overview</h2>
-            <button data-collapse-toggle="kpi-overview"
-                    class="cursor-pointer text-brand-muted hover:text-brand-black transition-colors p-1 rounded hover:bg-brand-bg">
-                <svg data-chevron class="w-[14px] h-[14px] transition-transform duration-200"
-                     fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"/>
-                </svg>
-            </button>
+            <div style="flex:1;min-width:0;">
+                <p style="font-size:13px;font-weight:700;color:#0a0a0a;margin:0;">Department Action Plans <span style="font-size:11px;font-weight:400;color:#a3a3a3;">({{ $actionPlans->count() + 6 }})</span></p>
+                <p style="font-size:10px;color:#a3a3a3;margin:2px 0 0;">Goals, tasks &amp; progress by department</p>
+            </div>
+        </button>
+        <div id="kpi-plans" style="border-top:1px solid #f0f0ef;padding:16px 20px 20px;">
+            <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
+
+                {{-- DB-driven plans --}}
+                @foreach($actionPlans as $plan)
+                    <div class="card space-y-3">
+                        <div class="flex items-start justify-between gap-2">
+                            <div>
+                                <div class="flex items-center gap-2 mb-1">
+                                    <span class="text-[9px] font-bold px-1.5 py-0.5 rounded text-white uppercase"
+                                          style="background-color: {{ $plan->department->color }}">
+                                        {{ $plan->department->code }}
+                                    </span>
+                                    <span class="text-[12px] font-semibold text-brand-black">{{ $plan->department->label }}</span>
+                                </div>
+                                @if($plan->mission)
+                                    <p class="text-[11px] text-brand-muted leading-relaxed line-clamp-2">{{ $plan->mission }}</p>
+                                @endif
+                            </div>
+                            <div class="flex-shrink-0 text-right">
+                                <span class="text-[20px] font-bold text-brand-black">{{ $plan->overall_progress }}%</span>
+                                <p class="text-[9px] text-brand-muted">overall</p>
+                            </div>
+                        </div>
+                        <div class="space-y-2">
+                            @foreach($plan->goals as $goal)
+                                <div>
+                                    <div class="flex items-center justify-between mb-1">
+                                        <span class="text-[11px] text-brand-black truncate">{{ $goal->title }}</span>
+                                        <span class="text-[10px] font-medium text-brand-muted ml-2 flex-shrink-0">{{ $goal->action_items_progress }}%</span>
+                                    </div>
+                                    <div class="progress-bar">
+                                        <div class="progress-bar-fill {{ ['on_track'=>'bg-status-green','at_risk'=>'bg-status-amber','off_track'=>'bg-status-red','completed'=>'bg-status-blue'][$goal->status] ?? 'bg-brand-muted' }}"
+                                             style="width:{{ $goal->action_items_progress }}%"></div>
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                        <div class="flex items-center justify-between pt-2 border-t border-brand-border">
+                            <span class="text-[10px] text-brand-subtle">{{ $plan->quarter_label }}</span>
+                            <a href="{{ route('kpi.action-plan', $plan) }}" class="text-[11px] text-brand-muted hover:text-brand-black font-medium transition-colors">View details →</a>
+                        </div>
+                    </div>
+                @endforeach
+
+                {{-- Static sample plans ──────────────────────────────── --}}
+                @php
+                $samplePlans = [
+                    [
+                        'code' => 'HR', 'color' => '#7c3aed', 'label' => 'Human Resources',
+                        'mission' => 'Develop talent, improve staff satisfaction & reduce turnover rate.',
+                        'progress' => 67, 'quarter' => 'Q2 2025',
+                        'goals' => [
+                            ['title' => 'Reduce staff turnover rate',       'pct' => 75, 'status' => 'on_track'],
+                            ['title' => 'Complete performance reviews',      'pct' => 45, 'status' => 'at_risk'],
+                            ['title' => 'Conduct monthly training programs', 'pct' => 80, 'status' => 'on_track'],
+                        ],
+                    ],
+                    [
+                        'code' => 'HK', 'color' => '#0891b2', 'label' => 'Housekeeping',
+                        'mission' => 'Maintain room quality standards and achieve top guest satisfaction scores.',
+                        'progress' => 71, 'quarter' => 'Q2 2025',
+                        'goals' => [
+                            ['title' => 'Achieve 95% room cleanliness score', 'pct' => 88, 'status' => 'on_track'],
+                            ['title' => 'Reduce checkout-to-ready time',      'pct' => 52, 'status' => 'at_risk'],
+                            ['title' => 'Complete deep-cleaning schedule',    'pct' => 72, 'status' => 'on_track'],
+                        ],
+                    ],
+                    [
+                        'code' => 'FNB', 'color' => '#d97706', 'label' => 'Food & Beverage',
+                        'mission' => 'Deliver exceptional dining experiences while controlling food cost.',
+                        'progress' => 62, 'quarter' => 'Q2 2025',
+                        'goals' => [
+                            ['title' => 'Reduce food cost to 28%',       'pct' => 35, 'status' => 'off_track'],
+                            ['title' => 'Achieve F&B monthly revenue',   'pct' => 81, 'status' => 'on_track'],
+                            ['title' => 'Launch seasonal menu updates',  'pct' => 70, 'status' => 'on_track'],
+                        ],
+                    ],
+                    [
+                        'code' => 'FO', 'color' => '#16a34a', 'label' => 'Front Office',
+                        'mission' => 'Deliver seamless check-in experience and maximise room upsell revenue.',
+                        'progress' => 74, 'quarter' => 'Q2 2025',
+                        'goals' => [
+                            ['title' => 'Achieve 95% check-in satisfaction', 'pct' => 87, 'status' => 'on_track'],
+                            ['title' => 'Upsell room upgrades target',        'pct' => 48, 'status' => 'at_risk'],
+                            ['title' => 'Reduce avg. wait time < 3 min',     'pct' => 76, 'status' => 'on_track'],
+                        ],
+                    ],
+                    [
+                        'code' => 'MNT', 'color' => '#64748b', 'label' => 'Maintenance',
+                        'mission' => 'Ensure all facilities meet safety & operational standards at all times.',
+                        'progress' => 69, 'quarter' => 'Q2 2025',
+                        'goals' => [
+                            ['title' => 'Complete preventive maintenance plan', 'pct' => 82, 'status' => 'on_track'],
+                            ['title' => 'Work order response < 2 hours',        'pct' => 55, 'status' => 'at_risk'],
+                            ['title' => 'Zero safety-compliance failures',      'pct' => 100,'status' => 'on_track'],
+                        ],
+                    ],
+                    [
+                        'code' => 'S&M', 'color' => '#dc2626', 'label' => 'Sales & Marketing',
+                        'mission' => 'Drive revenue growth, increase direct bookings & expand corporate accounts.',
+                        'progress' => 58, 'quarter' => 'Q2 2025',
+                        'goals' => [
+                            ['title' => 'Achieve monthly revenue target',   'pct' => 91, 'status' => 'on_track'],
+                            ['title' => 'Grow direct booking share to 40%', 'pct' => 58, 'status' => 'at_risk'],
+                            ['title' => 'Acquire 5 new corporate accounts', 'pct' => 30, 'status' => 'off_track'],
+                        ],
+                    ],
+                ];
+                $barColors = ['on_track' => 'bg-status-green', 'at_risk' => 'bg-status-amber', 'off_track' => 'bg-status-red'];
+                @endphp
+
+                @foreach($samplePlans as $sp)
+                    <div class="card space-y-3">
+                        <div class="flex items-start justify-between gap-2">
+                            <div>
+                                <div class="flex items-center gap-2 mb-1">
+                                    <span class="text-[9px] font-bold px-1.5 py-0.5 rounded text-white uppercase"
+                                          style="background-color:{{ $sp['color'] }}">{{ $sp['code'] }}</span>
+                                    <span class="text-[12px] font-semibold text-brand-black">{{ $sp['label'] }}</span>
+                                </div>
+                                <p class="text-[11px] text-brand-muted leading-relaxed line-clamp-2">{{ $sp['mission'] }}</p>
+                            </div>
+                            <div class="flex-shrink-0 text-right">
+                                <span class="text-[20px] font-bold text-brand-black">{{ $sp['progress'] }}%</span>
+                                <p class="text-[9px] text-brand-muted">overall</p>
+                            </div>
+                        </div>
+                        <div class="space-y-2">
+                            @foreach($sp['goals'] as $g)
+                                <div>
+                                    <div class="flex items-center justify-between mb-1">
+                                        <span class="text-[11px] text-brand-black truncate">{{ $g['title'] }}</span>
+                                        <span class="text-[10px] font-medium text-brand-muted ml-2 flex-shrink-0">{{ $g['pct'] }}%</span>
+                                    </div>
+                                    <div class="progress-bar">
+                                        <div class="progress-bar-fill {{ $barColors[$g['status']] }}"
+                                             style="width:{{ $g['pct'] }}%"></div>
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                        <div class="flex items-center justify-between pt-2 border-t border-brand-border">
+                            <span class="text-[10px] text-brand-subtle">{{ $sp['quarter'] }}</span>
+                            <span class="text-[11px] text-brand-subtle">Sample data</span>
+                        </div>
+                    </div>
+                @endforeach
+
+            </div>
         </div>
-        <div id="kpi-overview">
+    </div>
+
+    {{-- ── Row: Status Overview ─────────────────────────────────── --}}
+    <div style="background:#fff;border:1px solid #e5e5e3;border-radius:14px;overflow:hidden;">
+        <button class="fin-toggle" data-target="kpi-overview"
+                style="width:100%;display:flex;align-items:center;gap:12px;padding:16px 20px;background:transparent;border:none;cursor:pointer;text-align:left;transition:background .15s;"
+                onmouseover="this.style.background='#f9f9f8'" onmouseout="this.style.background='transparent'">
+            <div class="fin-arrow-wrap" style="width:24px;height:24px;border-radius:8px;background:#f3f3f2;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background .15s;">
+                <svg class="fin-arrow" style="width:9px;height:9px;transition:transform .2s;transform:rotate(90deg);" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M5 3l14 9-14 9V3z"/>
+                </svg>
+            </div>
+            <div style="flex:1;min-width:0;">
+                <p style="font-size:13px;font-weight:700;color:#0a0a0a;margin:0;">Status Overview</p>
+                <p style="font-size:10px;color:#a3a3a3;margin:2px 0 0;">On track, near target &amp; off track</p>
+            </div>
+        </button>
+        <div id="kpi-overview" style="border-top:1px solid #f0f0ef;padding:16px 20px 20px;">
             <div class="grid grid-cols-3 gap-3 mb-3">
                 @foreach([
                     ['label' => 'On Track',    'count' => $summary['on_track'],  'class' => 'text-status-green bg-status-green-bg border-status-green/20', 'key' => 'on_track'],
@@ -58,29 +221,21 @@
     </div>
 
     {{-- ── Row: KPI Metrics ─────────────────────────────────────── --}}
-    <div id="row-kpi-metrics" draggable="true" class="kpi-row">
-        <div class="flex items-center gap-2 mb-3">
-            <div class="dash-grip" title="Drag to reorder"
-                 style="cursor:grab;color:#d4d4d4;display:flex;align-items:center;flex-shrink:0;">
-                <svg style="width:11px;height:15px;" fill="currentColor" viewBox="0 0 10 16">
-                    <circle cx="2.5" cy="2"  r="1.3"/><circle cx="7.5" cy="2"  r="1.3"/>
-                    <circle cx="2.5" cy="8"  r="1.3"/><circle cx="7.5" cy="8"  r="1.3"/>
-                    <circle cx="2.5" cy="14" r="1.3"/><circle cx="7.5" cy="14" r="1.3"/>
+    <div style="background:#fff;border:1px solid #e5e5e3;border-radius:14px;overflow:hidden;">
+        <button class="fin-toggle" data-target="kpi-metrics"
+                style="width:100%;display:flex;align-items:center;gap:12px;padding:16px 20px;background:transparent;border:none;cursor:pointer;text-align:left;transition:background .15s;"
+                onmouseover="this.style.background='#f9f9f8'" onmouseout="this.style.background='transparent'">
+            <div class="fin-arrow-wrap" style="width:24px;height:24px;border-radius:8px;background:#f3f3f2;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background .15s;">
+                <svg class="fin-arrow" style="width:9px;height:9px;transition:transform .2s;transform:rotate(90deg);" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M5 3l14 9-14 9V3z"/>
                 </svg>
             </div>
-            <h2 class="text-[13px] font-semibold text-brand-black flex-1">
-                Operations Overview
-                <span class="ml-1.5 text-[11px] font-normal text-brand-muted">({{ $kpis->count() }})</span>
-            </h2>
-            <button data-collapse-toggle="kpi-metrics"
-                    class="cursor-pointer text-brand-muted hover:text-brand-black transition-colors p-1 rounded hover:bg-brand-bg">
-                <svg data-chevron class="w-[14px] h-[14px] transition-transform duration-200"
-                     fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"/>
-                </svg>
-            </button>
-        </div>
-        <div id="kpi-metrics">
+            <div style="flex:1;min-width:0;">
+                <p style="font-size:13px;font-weight:700;color:#0a0a0a;margin:0;">KPI Metrics <span style="font-size:11px;font-weight:400;color:#a3a3a3;">({{ $kpis->count() }})</span></p>
+                <p style="font-size:10px;color:#a3a3a3;margin:2px 0 0;">Department performance &amp; targets</p>
+            </div>
+        </button>
+        <div id="kpi-metrics" style="border-top:1px solid #f0f0ef;padding:16px 20px 20px;">
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-3">
                 @foreach($kpis as $kpi)
                     @include('components.kpi-card', ['kpi' => $kpi])
@@ -109,174 +264,24 @@
         </div>
     </div>
 
-    {{-- ── Row: Department Action Plans ────────────────────────── --}}
-    <div id="row-kpi-plans" draggable="true" class="kpi-row">
-        <div class="flex items-center gap-2 mb-3">
-            <div class="dash-grip" title="Drag to reorder"
-                 style="cursor:grab;color:#d4d4d4;display:flex;align-items:center;flex-shrink:0;">
-                <svg style="width:11px;height:15px;" fill="currentColor" viewBox="0 0 10 16">
-                    <circle cx="2.5" cy="2"  r="1.3"/><circle cx="7.5" cy="2"  r="1.3"/>
-                    <circle cx="2.5" cy="8"  r="1.3"/><circle cx="7.5" cy="8"  r="1.3"/>
-                    <circle cx="2.5" cy="14" r="1.3"/><circle cx="7.5" cy="14" r="1.3"/>
-                </svg>
-            </div>
-            <h2 class="text-[13px] font-semibold text-brand-black flex-1">
-                Department Action Plans
-                <span class="ml-1.5 text-[11px] font-normal text-brand-muted">({{ $actionPlans->count() }})</span>
-            </h2>
-            <button data-collapse-toggle="kpi-plans"
-                    class="cursor-pointer text-brand-muted hover:text-brand-black transition-colors p-1 rounded hover:bg-brand-bg">
-                <svg data-chevron class="w-[14px] h-[14px] transition-transform duration-200"
-                     fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"/>
-                </svg>
-            </button>
-        </div>
-        <div id="kpi-plans">
-            <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
-                @foreach($actionPlans as $plan)
-                    <div class="card space-y-3">
-                        <div class="flex items-start justify-between gap-2">
-                            <div>
-                                <div class="flex items-center gap-2 mb-1">
-                                    <span class="text-[9px] font-bold px-1.5 py-0.5 rounded text-white uppercase"
-                                          style="background-color: {{ $plan->department->color }}">
-                                        {{ $plan->department->code }}
-                                    </span>
-                                    <span class="text-[12px] font-semibold text-brand-black">{{ $plan->department->label }}</span>
-                                </div>
-                                @if($plan->mission)
-                                    <p class="text-[11px] text-brand-muted leading-relaxed line-clamp-2">{{ $plan->mission }}</p>
-                                @endif
-                            </div>
-                            <div class="flex-shrink-0 text-right">
-                                <span class="text-[20px] font-bold text-brand-black">{{ $plan->overall_progress }}%</span>
-                                <p class="text-[9px] text-brand-muted">overall</p>
-                            </div>
-                        </div>
-
-                        <div class="space-y-2">
-                            @foreach($plan->goals as $goal)
-                                <div>
-                                    <div class="flex items-center justify-between mb-1">
-                                        <span class="text-[11px] text-brand-black truncate">{{ $goal->title }}</span>
-                                        <span class="text-[10px] font-medium text-brand-muted ml-2 flex-shrink-0">
-                                            {{ $goal->action_items_progress }}%
-                                        </span>
-                                    </div>
-                                    <div class="progress-bar">
-                                        <div class="progress-bar-fill
-                                                    {{ ['on_track' => 'bg-status-green', 'at_risk' => 'bg-status-amber', 'off_track' => 'bg-status-red', 'completed' => 'bg-status-blue'][$goal->status] ?? 'bg-brand-muted' }}"
-                                             style="width: {{ $goal->action_items_progress }}%"></div>
-                                    </div>
-                                </div>
-                            @endforeach
-                        </div>
-
-                        <div class="flex items-center justify-between pt-2 border-t border-brand-border">
-                            <span class="text-[10px] text-brand-subtle">{{ $plan->quarter_label }}</span>
-                            <a href="{{ route('kpi.action-plan', $plan) }}"
-                               class="text-[11px] text-brand-muted hover:text-brand-black font-medium transition-colors">
-                                View details →
-                            </a>
-                        </div>
-                    </div>
-                @endforeach
-            </div>
-            @if($actionPlans->isEmpty())
-                <div class="text-center py-10 text-brand-muted text-[13px]">No action plans for this quarter.</div>
-            @endif
-        </div>
-    </div>
 
 </div>
 
 @push('scripts')
 <script>
-document.addEventListener('DOMContentLoaded', () => {
-    const container = document.getElementById('kpi-container')
-    const LS_KEY    = 'kpi_row_order_v1'
-
-    // ── Restore saved order ───────────────────────────────────────
-    try {
-        const saved = JSON.parse(localStorage.getItem(LS_KEY))
-        if (Array.isArray(saved)) {
-            saved.forEach(id => {
-                const el = document.getElementById(id)
-                if (el) container.appendChild(el)
-            })
-        }
-    } catch {}
-
-    function saveOrder() {
-        const order = [...container.children]
-            .filter(el => el.classList.contains('kpi-row'))
-            .map(el => el.id)
-        localStorage.setItem(LS_KEY, JSON.stringify(order))
-    }
-
-    // ── Drag-and-drop ─────────────────────────────────────────────
-    const dropLine = document.createElement('div')
-    dropLine.style.cssText = `height:3px;background:#2563eb;border-radius:2px;
-                               margin:2px 0;display:none;pointer-events:none;flex-shrink:0;`
-    container.appendChild(dropLine)
-
-    let dragging = null
-
-    document.querySelectorAll('.kpi-row').forEach(row => {
-
-        row.addEventListener('dragstart', e => {
-            dragging = row
-            e.dataTransfer.effectAllowed = 'move'
-            e.dataTransfer.setData('text/plain', row.id)
-            setTimeout(() => {
-                row.style.opacity       = '0.4'
-                row.style.outline       = '2px dashed #e5e5e3'
-                row.style.outlineOffset = '2px'
-            }, 0)
-        })
-
-        row.addEventListener('dragend', () => {
-            row.style.opacity       = ''
-            row.style.outline       = ''
-            row.style.outlineOffset = ''
-            dropLine.style.display  = 'none'
-            dragging = null
-        })
-
-        row.addEventListener('dragover', e => {
-            e.preventDefault()
-            e.dataTransfer.dropEffect = 'move'
-            if (!dragging || dragging === row) return
-            const rect   = row.getBoundingClientRect()
-            const before = e.clientY < rect.top + rect.height / 2
-            container.insertBefore(dropLine, before ? row : row.nextSibling)
-            dropLine.style.display = 'block'
-        })
-
-        row.addEventListener('drop', e => {
-            e.preventDefault()
-            if (!dragging || dragging === row) return
-            container.insertBefore(dragging, dropLine)
-            dropLine.style.display = 'none'
-            saveOrder()
-        })
-    })
-
-    container.addEventListener('dragleave', e => {
-        if (!container.contains(e.relatedTarget)) {
-            dropLine.style.display = 'none'
-        }
-    })
-
-    // Block drag on interactive children
-    container.addEventListener('dragstart', e => {
-        if (e.target.tagName === 'A' || e.target.tagName === 'BUTTON' ||
-            e.target.tagName === 'INPUT') {
-            e.preventDefault()
-        }
-    }, true)
-})
+document.querySelectorAll('.fin-toggle').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+        var body  = document.getElementById(btn.dataset.target);
+        var arrow = btn.querySelector('.fin-arrow');
+        var wrap  = btn.querySelector('.fin-arrow-wrap');
+        if (!body) return;
+        var open = body.style.display !== 'none';
+        body.style.display    = open ? 'none' : 'block';
+        arrow.style.transform = open ? 'rotate(0deg)' : 'rotate(90deg)';
+        if (wrap)  wrap.style.background  = open ? '#f3f3f2' : '#0a0a0a';
+        if (arrow) arrow.style.filter     = open ? '' : 'invert(1)';
+    });
+});
 </script>
 @endpush
 @endsection
